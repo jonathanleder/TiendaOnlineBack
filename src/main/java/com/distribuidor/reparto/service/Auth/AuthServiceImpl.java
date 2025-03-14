@@ -1,7 +1,10 @@
 package com.distribuidor.reparto.service.Auth;
 
+import com.distribuidor.reparto.listener.RegistrationCompleteEvent;
 import com.distribuidor.reparto.modelo.Usuario;
 import com.distribuidor.reparto.repository.UserRepo;
+import com.distribuidor.reparto.token.VerificationToken;
+import com.distribuidor.reparto.token.VerificationTokenRepository;
 import com.distribuidor.reparto.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,10 +64,6 @@ public class AuthServiceImpl implements AuthService {
         return "Verifica tu email";
     }
 
-    @Override
-    Optional<Usuario> findByEmail(String email){
-        return userRepo.findByEmail(email);
-    }
 
     @Override
     public String verifyToken(String token) {
@@ -81,17 +80,43 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Optional<Usuario> findByEmail(String email) {
-        return Optional.empty();
+    public Optional<Usuario> findByEmail(String email){
+        return userRepo.findByEmail(email);
     }
 
+
     @Override
-    public void saveUserVerificationToken(Usuario theUser, String verificationToken) {
+    public void saveUserVerificationToken(Usuario theUser, String token) {
+
+        verificationTokenRepository.save(new VerificationToken(token,theUser));
 
     }
 
     @Override
     public String validateToken(String token) {
-        return "";
+
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token);
+        if(verificationToken == null) {
+            System.out.println("Token no encontrado en la bd");
+            return "Token de verificacion no valido";
+        }
+        Usuario user = verificationToken.getUser();
+        System.out.println("Estado actual del usuario: "+ user.isEnabled());
+        if(verificationToken.isExpired()){
+            verificationTokenRepository.delete(verificationToken);
+            System.out.println("Token expirado y eliminado");
+        }
+        user.setEnabled(true);
+        try {
+            userRepo.save(user);
+            System.out.println("Usuario Actualizado :" + user.isEnabled());
+            verificationTokenRepository.delete(verificationToken);
+            return "Valido";
+        }catch (Exception e){
+            System.out.println("Error al guardar usuario: "+ e.getMessage());
+            e.printStackTrace();
+            return "Error al actualizar usuario";
+        }
+
     }
 }

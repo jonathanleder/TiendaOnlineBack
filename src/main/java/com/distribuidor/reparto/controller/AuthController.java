@@ -1,11 +1,18 @@
 package com.distribuidor.reparto.controller;
 
 import com.distribuidor.reparto.service.Auth.AuthService;
+import com.distribuidor.reparto.service.Auth.AuthServiceImpl;
+import com.distribuidor.reparto.token.VerificationToken;
+import com.distribuidor.reparto.token.VerificationTokenRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/auth/")
@@ -14,6 +21,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private AuthServiceImpl userService;
+
+    @Autowired
+    private VerificationTokenRepository tokenRepository;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody AuthRequestDto authRequestDto) {
@@ -58,6 +71,40 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(authResponseDto);
         }
+    }
+
+    @GetMapping("/verifyEmail")
+    public void VerifyEmail(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
+
+        System.out.println("Recibida la solicitud para verificacion: "+token);
+
+        try{
+            VerificationToken verificationToken = tokenRepository.findByToken(token);
+            if(verificationToken == null) {
+                System.out.println("Token no encontrado");
+                response.sendRedirect("http://localhost:3000/verification?status=invalid-token");
+                return;
+            }
+            String result =userService.validateToken(token);
+            System.out.println("Resultado: "+result);
+
+            if(result!="valido" || result!= "expired") {
+                response.sendRedirect("http://localhost:3000/verification?status=error");
+            }
+            if(result == "expired"){
+                response.sendRedirect("http://localhost:3000/verification?status=expired");
+            }
+            response.sendRedirect("http://localhost:3000/verification?status=success");
+
+        }catch (Exception e){
+            System.out.println("Error durante la verificacion: "+e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("http://localhost:3000/verification?status=error");
+        }
+    }
+
+    public String applicationUrl(HttpServletRequest request) {
+        return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
 
 }
