@@ -1,6 +1,6 @@
 package com.distribuidor.reparto.controller;
 
-import com.distribuidor.reparto.service.AuthService;
+import com.distribuidor.reparto.service.Auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

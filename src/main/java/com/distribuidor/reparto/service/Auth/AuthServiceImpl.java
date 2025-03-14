@@ -1,17 +1,18 @@
-package com.distribuidor.reparto.service;
+package com.distribuidor.reparto.service.Auth;
 
 import com.distribuidor.reparto.modelo.Usuario;
 import com.distribuidor.reparto.repository.UserRepo;
 import com.distribuidor.reparto.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,12 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     @Override
     public String login(String username, String password) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
@@ -37,17 +44,26 @@ public class AuthServiceImpl implements AuthService {
     public String singUp(String nombre,String apellido,String telefono, String email, String username, String password) {
 
         if(userRepo.existsByUsername(username)) {
-            throw new RuntimeException("Username ya existe");
+            throw new RuntimeException("El username ya existe");
         }
         if(userRepo.existsByEmail(email)) {
-            throw new RuntimeException("Email ya existe");
+            throw new RuntimeException("El email ya existe");
         }
         Usuario user = new Usuario(nombre,apellido,telefono,username,passwordEncoder.encode(password),email);
-
+        user.setEnabled(false);
 
         userRepo.save(user);
+
+        eventPublisher.publishEvent(new RegistrationCompleteEvent(user,"..."));
+
+
         System.out.println("Usuario Creado "+ user.getUsername());
-        return JwtUtils.generateToken(user.getUsername());
+        return "Verifica tu email";
+    }
+
+    @Override
+    Optional<Usuario> findByEmail(String email){
+        return userRepo.findByEmail(email);
     }
 
     @Override
@@ -62,5 +78,20 @@ public class AuthServiceImpl implements AuthService {
 
 
 
+    }
+
+    @Override
+    public Optional<Usuario> findByEmail(String email) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void saveUserVerificationToken(Usuario theUser, String verificationToken) {
+
+    }
+
+    @Override
+    public String validateToken(String token) {
+        return "";
     }
 }
