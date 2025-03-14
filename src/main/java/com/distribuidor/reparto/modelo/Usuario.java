@@ -39,6 +39,10 @@ public class Usuario {
     private String telefono;
 
 
+    @Column(name = "enabled",nullable = false)
+    private boolean enabled = false;
+
+
     public Usuario(String nombre,String apellido,String telefono,String username,String password,String email){
         this.nombre = nombre;
         this.apellido = apellido;
@@ -58,6 +62,17 @@ public class Usuario {
     }
     public String getPassword() {
         return password;
+    }
+    public String getEmail() {
+        return this.email;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
 }

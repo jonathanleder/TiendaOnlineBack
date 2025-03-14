@@ -1,4 +1,4 @@
-package com.distribuidor.reparto.service;
+package com.distribuidor.reparto.service.User;
 
 import com.distribuidor.reparto.repository.UserRepo;
 import lombok.RequiredArgsConstructor;

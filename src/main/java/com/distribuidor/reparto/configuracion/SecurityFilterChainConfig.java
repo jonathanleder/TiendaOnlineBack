@@ -31,7 +31,8 @@ public class SecurityFilterChainConfig {
                 requestMatcher -> requestMatcher
                         .requestMatchers("/api/auth/registrar/**").permitAll()
                         .requestMatchers("/api/auth/login/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/verifyEmail/**").permitAll()
+                        .anyRequest().authenticated()//Requiere authenticacion para acceder a cualquier ruta menos las nombradas arriba
         );
 
         httpSecurity.exceptionHandling(exceptionConfig -> exceptionConfig.authenticationEntryPoint(authenticationEntryPoint));
