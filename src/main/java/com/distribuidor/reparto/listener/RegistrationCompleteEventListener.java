@@ -39,7 +39,8 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 
         userService.saveUserVerificationToken(theUser, verificationToken);
 
-        String url= "http://localhost:8080/api/auth/verifyEmail?token=" + verificationToken;
+
+        String url= "http://localhost:8080/api/auth/verifyEmail?token="+verificationToken;
 
         try{
             sendVerificationEmail(url);
@@ -57,7 +58,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         String mailContent="<p> Hola, "+ this.theUser.getUsername() + "</p>"
                 + " <p> Gracias por registrarte con nosotros</p>"
                 + "<p> Por favor haz click en el enlace para completar tu registro: </p>"
-                + "<a hre=\""+ url + "\"> Verifica tu correo electronico para activar tu cuenta </a>"
+                + "<a href=\""+ url + "\"> Verifica tu correo electronico para activar tu cuenta </a>"
                 + "<p> Gracias, <br> Servicio de Registro de Usuarios</p>";
 
         MimeMessage message= mailSender.createMimeMessage();

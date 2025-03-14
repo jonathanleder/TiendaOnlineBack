@@ -41,10 +41,12 @@ public class AuthController {
         }catch (Exception e){
             String errorMessage = e.getMessage();
             AuthStatus status = AuthStatus.LOGIN_FAILED;
-            if (e.getMessage().contains("Bad credentials")) {
-                errorMessage = "Usuario o contraseña incorrectas";
-            } else if (e.getMessage().contains("User not found")) {
+            if (e.getMessage().contains("Usuario no encontrado")) {
                 errorMessage = "Usuario no encontrado";
+            } else if (e.getMessage().contains("La cuenta no ha sido verificada")) {
+                errorMessage = "La cuenta no ha sido verificada. por favor revise su correo electronico";
+            }else if(e.getMessage().contains("Bad credentials")) {
+                errorMessage = "Usuario o contraseña incorrectos";
             }
             var authResponseDto = new AuthResponseDto(null, status, errorMessage);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -73,7 +75,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/verifyEmail")
+    @GetMapping("verifyEmail")
     public void VerifyEmail(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
 
         System.out.println("Recibida la solicitud para verificacion: "+token);
@@ -82,24 +84,26 @@ public class AuthController {
             VerificationToken verificationToken = tokenRepository.findByToken(token);
             if(verificationToken == null) {
                 System.out.println("Token no encontrado");
-                response.sendRedirect("http://localhost:3000/verification?status=invalid-token");
+                response.sendRedirect("http://localhost:5173/verification?status=invalid-token");
                 return;
             }
             String result =userService.validateToken(token);
             System.out.println("Resultado: "+result);
 
-            if(result!="valido" || result!= "expired") {
-                response.sendRedirect("http://localhost:3000/verification?status=error");
+            if (!"valido".equals(result) && !"expired".equals(result)) {
+                response.sendRedirect("http://localhost:5173/verification?status=error");
+                return;
             }
-            if(result == "expired"){
-                response.sendRedirect("http://localhost:3000/verification?status=expired");
+            if ("expired".equals(result)) {
+                response.sendRedirect("http://localhost:5173/verification?status=expired");
+                return;
             }
-            response.sendRedirect("http://localhost:3000/verification?status=success");
+            response.sendRedirect("http://localhost:5173/verification?status=success");
 
         }catch (Exception e){
             System.out.println("Error durante la verificacion: "+e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("http://localhost:3000/verification?status=error");
+            response.sendRedirect("http://localhost:5173/verification?status=error");
         }
     }
 

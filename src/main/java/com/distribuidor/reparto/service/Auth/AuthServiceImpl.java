@@ -38,6 +38,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String login(String username, String password) {
+
+        Optional<Usuario> usuario = userRepo.findByUsername(username);
+        if (usuario.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        Usuario usuarioActual = usuario.get();
+
+        if(!usuarioActual.isEnabled()){
+            throw new RuntimeException("La cuenta no ah sido verificada");
+        }
+
+
         var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         var authenticate= authenticationManager.authenticate(authenticationToken);
         return JwtUtils.generateToken(((UserDetails) (authenticate.getPrincipal())).getUsername());
@@ -105,13 +117,14 @@ public class AuthServiceImpl implements AuthService {
         if(verificationToken.isExpired()){
             verificationTokenRepository.delete(verificationToken);
             System.out.println("Token expirado y eliminado");
+            return "expired";
         }
         user.setEnabled(true);
         try {
             userRepo.save(user);
             System.out.println("Usuario Actualizado :" + user.isEnabled());
             verificationTokenRepository.delete(verificationToken);
-            return "Valido";
+            return "valido";
         }catch (Exception e){
             System.out.println("Error al guardar usuario: "+ e.getMessage());
             e.printStackTrace();
