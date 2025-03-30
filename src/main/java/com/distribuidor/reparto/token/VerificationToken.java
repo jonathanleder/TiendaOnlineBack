@@ -18,7 +18,7 @@ public class VerificationToken {
     @Column(nullable= false)
     private LocalDateTime expirationTime;
 
-    private static final int EXPIRATION_TIME = 15;
+    private static final int EXPIRATION_TIME = 30;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")

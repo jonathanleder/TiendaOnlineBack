@@ -42,7 +42,7 @@ public class Usuario {
     @Column(name = "enabled",nullable = false)
     private boolean enabled = false;
 
-
+/*
     public Usuario(String nombre,String apellido,String telefono,String username,String password,String email){
         this.nombre = nombre;
         this.apellido = apellido;
@@ -55,7 +55,7 @@ public class Usuario {
     public Usuario() {
         // Este constructor sin parámetros se usa para la creación de entidades en JPA.
     }
-
+*/
 
     public String getUsername() {
         return username;

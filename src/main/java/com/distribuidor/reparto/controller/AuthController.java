@@ -33,7 +33,7 @@ public class AuthController {
 
         try{
         var jwtToken = authService.login(authRequestDto.username(), authRequestDto.password());
-        var authResponseDto = new AuthResponseDto(jwtToken, AuthStatus.LOGIN_SUCCESSFULLY, "Inicio de sesion exitoso");
+        var authResponseDto = new AuthResponseDto(jwtToken, AuthStatus.LOGIN_SUCCESSFULLY, "Usuario creado con exito, por favor revise su correo electronico para completar el registro");
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(authResponseDto);
