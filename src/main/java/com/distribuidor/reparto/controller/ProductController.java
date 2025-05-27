@@ -3,7 +3,6 @@ package com.distribuidor.reparto.controller;
 import com.distribuidor.reparto.modelo.Producto;
 import com.distribuidor.reparto.repository.ProductoRepository;
 import com.distribuidor.reparto.service.Product.ProductoService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +38,25 @@ public class ProductController {
         return productoService.obtenerProductoPorId(id);
     }
     @PostMapping("/crear")
-    public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
-        try{
-            String imageUrl = uploadImage(producto.getImagenUrl());
-            productoService.guardarProducto(new Producto(null,producto.getNombre(),producto.getDescripcion(),producto.getPrecio(),producto.getStock(),imageUrl));
-            return ResponseEntity.status(HttpStatus.CREATED).body(producto);
+    public ResponseEntity<Producto> crearProducto(
+            @RequestParam("nombre") String nombre,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("precio") float precio,
+            @RequestParam("stock") Integer stock,
+            @RequestParam("imagen") MultipartFile imagen) {
+
+        try {
+            String imageUrl = uploadImage(imagen);
+
+            Producto producto = new Producto();
+            producto.setNombre(nombre);
+            producto.setDescripcion(descripcion);
+            producto.setPrecio(precio);
+            producto.setStock(stock);
+            producto.setImagenUrl(imageUrl);
+
+            return ResponseEntity.ok(productoRepository.save(producto));
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -74,17 +87,33 @@ public class ProductController {
 
     }
 
-    @DeleteMapping("/{id")
+    @DeleteMapping("/{id}")
     public void eliminarProducto(@PathVariable Long id) {
-        //var producto = productoService.obtenerProductoPorId(id);
-        productoService.eliminarProducto(id);
+        var producto = productoService.obtenerProductoPorId(id).orElseThrow(()-> new RuntimeException("Producto no encontrado"));
+        productoService.eliminarProducto(producto);
     }
 
-    @PutMapping
-    public ResponseEntity<Producto> actualizarProducto(@RequestBody Producto producto) {
-        Optional<Producto> productoOptional = productoService.obtenerProductoPorId(producto.getId());
-        if(productoOptional.isPresent()) {
-
+    @PutMapping("/actualizar/{id}")
+    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestParam("nombre")String nombre , @RequestParam("descripcion")String descripcion, @RequestParam("precio")float precio, @RequestParam("stock")Integer stock, @RequestParam(value = "imagen", required = false)MultipartFile imagen ) {
+        Optional<Producto> productoExistente = productoService.obtenerProductoPorId(id);
+        if(productoExistente.isPresent()) {
+            Producto producto = productoExistente.get();
+            producto.setNombre(nombre);
+            producto.setDescripcion(descripcion);
+            producto.setPrecio(precio);
+            producto.setStock(stock);
+            if(imagen != null && !imagen.isEmpty()) {
+                try{
+                    String imageUrl= uploadImage(imagen);
+                    producto.setImagenUrl(imageUrl);
+                }catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
+            Producto productoActualizado = productoService.guardarProducto(producto);
+            return ResponseEntity.ok(productoActualizado);
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 

@@ -3,10 +3,11 @@ package com.distribuidor.reparto.service.Product;
 import com.distribuidor.reparto.modelo.Producto;
 import com.distribuidor.reparto.repository.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
+@Service
 public class ProductoService {
 
     @Autowired
