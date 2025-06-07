@@ -32,9 +32,9 @@ public class SecurityFilterChainConfig {
                         .requestMatchers("/api/auth/registrar/**").permitAll()
                         .requestMatchers("/api/auth/login/**").permitAll()
                         .requestMatchers("/api/auth/verifyEmail/**").permitAll()
-                        .requestMatchers("/api/productos/**").permitAll()
-                        .requestMatchers("/api/productos/crear/**").permitAll()
-                        .requestMatchers("/api/productos/actualizar/**").permitAll()
+                        .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("/api/products/crear/**").permitAll()
+                        .requestMatchers("/api/products/actualizar/**").permitAll()
                         .requestMatchers("/api/uploads/**").permitAll()
                         .anyRequest().authenticated()//Requiere authenticacion para acceder a cualquier ruta menos las nombradas arriba
         );

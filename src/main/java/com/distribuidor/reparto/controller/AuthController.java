@@ -33,7 +33,7 @@ public class AuthController {
 
         try{
         var jwtToken = authService.login(authRequestDto.username(), authRequestDto.password());
-        var authResponseDto = new AuthResponseDto(jwtToken, AuthStatus.LOGIN_SUCCESSFULLY, "Usuario creado con exito, por favor revise su correo electronico para completar el registro");
+        var authResponseDto = new AuthResponseDto(jwtToken, AuthStatus.LOGIN_SUCCESSFULLY, "Inicio de sesion exitoso");
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(authResponseDto);
@@ -58,7 +58,7 @@ public class AuthController {
     public ResponseEntity<AuthResponseDto> singUP(@RequestBody AuthRequestDto authRequestDto) {
         try {
             var jwtToken = authService.singUp(authRequestDto.nombre(),authRequestDto.apellido(),authRequestDto.telefono() , authRequestDto.email(),authRequestDto.username(), authRequestDto.password());
-            var authResponseDto = new AuthResponseDto(jwtToken, AuthStatus.USER_CREATE_SUCCESSFULLY,"Usuario registrado exitosamente");
+            var authResponseDto = new AuthResponseDto(jwtToken, AuthStatus.USER_CREATE_SUCCESSFULLY,"Usuario creado con exito, por favor revise su correo electronico para completar el registro");
             return ResponseEntity.status(HttpStatus.OK)
                     .body(authResponseDto);
         } catch (Exception e) {
