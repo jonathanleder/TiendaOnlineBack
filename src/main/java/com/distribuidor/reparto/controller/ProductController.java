@@ -34,7 +34,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Producto> obtenerProductoPorId(@RequestParam Long id) {
+    public Optional<Producto> obtenerProductoPorId(@PathVariable Long id) {
         return productoService.obtenerProductoPorId(id);
     }
     @PostMapping("/crear")
